@@ -18,4 +18,7 @@ router.route("/rename").put(protect, renameGroup);
 router.route("/groupremove").put(protect, removeFromGroup);
 router.route("/groupadd").put(protect, addToGroup);
 
+const { summarizeMessages } = require("../controllers/chatControllers");
+router.route("/summarize/:chatId").get(protect, summarizeMessages);
+
 module.exports = router;

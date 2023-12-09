@@ -193,6 +193,22 @@ const addToGroup = asyncHandler(async (req, res) => {
   }
 });
 
+const axios = require('axios');
+
+const summarizeMessages = async (req, res) => {
+  try {
+    const { chatId } = req.params;
+
+    var randomm = Math.random()*10000;
+    var summary = chatId+"hey"+randomm+"hey sheldon, can i sit in ur spot? Sheldon: no its my spot. why cant u sit somehwer else? nono dont ask him that. oh man";
+
+    res.json({summary});
+  } catch (error) {
+    console.error("Error while summarizing messages:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   accessChat,
   fetchChats,
@@ -200,4 +216,5 @@ module.exports = {
   renameGroup,
   addToGroup,
   removeFromGroup,
+  summarizeMessages,
 };

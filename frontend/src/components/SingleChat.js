@@ -33,6 +33,9 @@ const SingleChat = ({fetchAgain, setFetchAgain}) => {
   const [file, setFile] = useState(); 
   const [image, setImage] = useState("");
 
+  const [displayedSummary, setDisplayedSummary] = useState(null); //2611
+  const [isBoxVisible, setIsBoxVisible] = useState(false);
+
   const scrollRef = useRef();
   // to here 
 
@@ -180,7 +183,8 @@ const SingleChat = ({fetchAgain, setFetchAgain}) => {
             );
             setImage("");
             setFile("");
-  
+            //511 
+            console.log("'data' received after posting to /api/msg"+data);
             socket.emit("new message", data);
             setMessages([...messages, data]);
           } catch (error) {
@@ -237,6 +241,8 @@ const SingleChat = ({fetchAgain, setFetchAgain}) => {
 
           try {
             response = await axios.post('/api/message/file/upload', data);
+            //511
+            console.log("'response' received after posting to /file/upload"+response);
           } catch (error) {
             console.log("error while file upload apu", error.message);
           }
@@ -254,6 +260,96 @@ const SingleChat = ({fetchAgain, setFetchAgain}) => {
 
     }
     // to here
+
+      const handleSummarizeClick = async (chatId) => {
+        try {
+          // const config = {
+          //   headers: {
+          //     "Content-type": "application/json",
+          //     Authorization: `Bearer ${user.token}`,
+          //   },
+          // };
+
+          //
+          const { data } = await axios.get(
+            // `/api/chat/summarize/${chatId}`,
+            `http://localhost:8000/messages/${chatId}`
+            // config
+          );
+          //
+          // const response = await axios.get(`/api/chat/summarize/${chatId}`);
+          console.log(chatId);
+          console.log("Summary:", data);
+          setDisplayedSummary(data);
+          // setDisplayedSummary(response.data.summary);
+          setIsBoxVisible(true);
+          
+          // Handle the summary in your frontend UI
+        } catch (error) {
+          console.error("Error while summarizing:", error.message);
+          console.log(chatId)
+        }
+      };
+    
+    const handleClearSummary = () => {
+      setDisplayedSummary(null);
+    };
+  
+    const handleCloseBox = () => {
+      setIsBoxVisible(false);
+    };
+
+    const SummaryBox = ({ chatId, chatName, onClose, onClear, summary }) => {
+      return (
+
+        <div style={{
+          border: '1px solid #ccc',
+          padding: '20px',
+          margin: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 1)',
+          backgroundColor: '#fff',
+          maxWidth: '850px',
+          textAlign: 'center',
+        }}>
+                     <h2 style={{
+            marginBottom: '30px',
+            color: '#333',
+            fontSize: '1.5em',
+            fontWeight: 'bold',
+            borderBottom: '2px solid #3399ff',
+            paddingBottom: '5px',
+          }}>
+            Summary for Chat: {chatName}
+          </h2> 
+
+          {summary ? (
+            <div>
+              <div>
+                <p>{summary}</p>
+    </div>
+              <button style={{backgroundColor: '#3399ff',color: '#fff',padding: '8px 16px',borderRadius: '5px', border: 'none',cursor: 'pointer',fontSize: '14px',fontWeight: 'bold',marginTop: '10px',marginRight: '5px',transition: 'background-color 0.3s ease',display: 'inline-block', }} 
+              onClick={onClear}
+              >
+                Clear Summary
+              </button>
+
+              <button
+                style={{backgroundColor: '#ccc',color: '#333',padding: '8px 16px',borderRadius: '5px', border: 'none',cursor: 'pointer',fontSize: '14px',fontWeight: 'bold',marginTop: '10px',transition: 'background-color 0.3s ease',display: 'inline-block', }}
+                onClick={onClose}
+              >
+                Close
+              </button>
+
+            </div>
+          ) : (
+            <p>No summary available.</p>
+          )}
+        </div>
+        
+        
+      );
+    };
 
     return (
         <>
@@ -285,6 +381,27 @@ const SingleChat = ({fetchAgain, setFetchAgain}) => {
                 ) : (
                   <>
                     {selectedChat.chatName.toUpperCase()}
+                    {
+                    //sum
+                    }
+                                        <button style={{
+                      backgroundColor: "#3399ff",
+                      color: "white",
+                      padding: "10px 20px",
+                      borderRadius: "5px",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                      transition: "background-color 0.3s ease",
+                    }} onClick={() => handleSummarizeClick(selectedChat._id)}>
+                      Summarize this chat
+                    </button>
+                        
+                    {
+                    //sum
+                    }
                     <UpdateGroupChatModal
                       fetchMessages={fetchMessages}
                       fetchAgain={fetchAgain}
@@ -304,6 +421,15 @@ const SingleChat = ({fetchAgain, setFetchAgain}) => {
               borderRadius="lg"
               overflowY="hidden"
             >
+              {isBoxVisible && (
+                          <SummaryBox
+                            chatId={selectedChat._id}
+                            chatName={selectedChat.chatName}
+                            onClose={handleCloseBox}
+                            onClear={handleClearSummary}
+                            summary={displayedSummary}
+                          />
+                        )}
               {loading ? (
                 <Spinner
                   size="xl"

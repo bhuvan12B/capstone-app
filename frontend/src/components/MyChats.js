@@ -137,7 +137,7 @@ const MyChats = ({ fetchAgain }) => {
                         
                     />
                       <MenuList>
-                        <MenuItem onClick={e => e.stopPropagation()} backgroundColor={"#99ccff"}>
+                        <MenuItem onClick={e=>e.stopPropagation()} backgroundColor={"#99ccff"}>
                           Summarise Chat
                         </MenuItem>
                     </MenuList>
